@@ -1,1 +1,1 @@
-FROM semtech/mu-python-pytorch-template:latest
+FROM lblod/mu-python-pytorch-template:latest
