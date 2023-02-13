@@ -1,7 +1,7 @@
 from transformers import MarianMTModel, MarianTokenizer
 from helpers import generate_uuid
 from flask import jsonify, request, Response
-from queries import queryEnrichableDescriptions, updateEnrichableDescriptions
+from queries import query_enrichable_descriptions, update_enrichable_descriptions
 
 tokenizer = MarianTokenizer.from_pretrained("/data/tokenizer")
 model = MarianMTModel.from_pretrained("/data/model", torch_dtype="auto")
@@ -21,8 +21,8 @@ def translate():
     })
 
 @app.route("/delta/", methods=["POST"])
-def delta():
-    query_results = queryEnrichableDescriptions()
+def translate_strings_with_missing_translation():
+    query_results = query_enrichable_descriptions()
 
     if query_results:
         source_strings = [f">>en<< {string}" for (_thing, string) in query_results]
@@ -32,8 +32,10 @@ def delta():
         translated = model.generate(**tokenized)
         decoded = [tokenizer.decode(t, skip_special_tokens=True) for t in translated]
 
-        updateEnrichableDescriptions(zip(source_uris, decoded))
+        update_enrichable_descriptions(zip(source_uris, decoded))
 
         return Response("Execution finished", 200)
     else:
         return Response("No results found", 204)
+
+translate_strings_with_missing_translation()
