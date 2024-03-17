@@ -2,6 +2,8 @@ from transformers import MarianMTModel, MarianTokenizer
 from helpers import generate_uuid
 from flask import jsonify, request, Response
 from queries import query_enrichable_descriptions, update_enrichable_descriptions
+from requests import post
+from threading import Thread
 
 tokenizer = MarianTokenizer.from_pretrained("/data/tokenizer")
 model = MarianMTModel.from_pretrained("/data/model", torch_dtype="auto")
@@ -38,4 +40,5 @@ def translate_strings_with_missing_translation():
     else:
         return Response("No results found", 204)
 
-translate_strings_with_missing_translation()
+
+Thread(target=lambda: post("http://localhost/delta")).start()
